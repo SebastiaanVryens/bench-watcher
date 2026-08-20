@@ -1,39 +1,10 @@
-# Garden Spine ladybug starter
+# Garden Spine, The Bench Watcher
 
-The shared starting point for one Garden Spine team and one ESP32 kit.
+We made a Bench Watcher that can detect privatly on how much a bench is occupied, made with only one ESP32 kit.
 
 `GardenSpine.h` handles Wi-Fi, the clock, TLS, MQTT reconnection, topic construction, and JSON
 formatting. You write the line that says what you measured. Everything else — sensing, timing,
 movement, enclosure, interpretation — is yours.
-
-## Start here
-
-Two pages on the programme site, in this order:
-
-1. **[Set up your laptop](https://gardenspine.ikapo.fi/setup)** — Arduino IDE, ESP32 support, the
-   three libraries, and installing this repository as a library. About 30 minutes, once.
-2. **[Tutorial 01 — Hello, spine](https://gardenspine.ikapo.fi/tutorial/01)** — your credentials,
-   your first message, and a green dot on the dashboard. About 15 minutes.
-
-Everything after that is on the [tutorials](https://gardenspine.ikapo.fi/tutorial/01) and your
-[charter page](https://gardenspine.ikapo.fi/projects).
-
-To keep your team's work, fork this repository and read the
-[short git guide](https://gardenspine.ikapo.fi/git). You do not need git to finish tutorial 01.
-
-## The examples
-
-Open them from **File → Examples → GardenSpine** once the library is installed.
-
-| Example | Tutorial | What it proves |
-|---|---|---|
-| `01_FirstMessage` | [01](https://gardenspine.ikapo.fi/tutorial/01) | your device reaches the backbone |
-| `02_ClimateNode` | [02](https://gardenspine.ikapo.fi/tutorial/02) | a real DHT11 value arrives and changes |
-| `03_Subscribe` | [03](https://gardenspine.ikapo.fi/tutorial/03) | you receive another team's messages |
-| `04_ServoReaction` | [04](https://gardenspine.ikapo.fi/tutorial/04) | incoming data drives a servo without blocking |
-| `05_DeliberateError` | [05](https://gardenspine.ikapo.fi/tutorial/05) | a bad message is stored and explained, not lost |
-
-`05_DeliberateError` sends `"C"` instead of `"celsius"` on purpose. It is supposed to be rejected.
 
 ## What you can call
 
