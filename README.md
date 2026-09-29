@@ -1,4 +1,4 @@
-# Bench Watcher — Garden Spine
+# Bench Watcher, Garden Spine
 
 A small robot that rides along a park bench and measures **how many people are sitting on it and for how long**, without a camera. It runs on a single ESP32 and sends its results to an online dashboard.
 
@@ -29,18 +29,18 @@ Built during the Garden Spine summer programme at the **University of Oulu** (IT
 5. **Track.** Each detection is stored with its position and the time it was first seen. On the next pass, a detection at the same spot is matched to the same occupant, so the robot knows how long they have been there. If a spot stays empty for 5 seconds, that occupant is marked as having left.
 6. **React.** When someone new sits down, the robot stops for 5 seconds and a bird mounted on top flaps its wings (two mirrored servos). This makes the device visible and a bit playful in a public space.
 7. **Report.** Every 30 seconds the ESP32 publishes two values over secure MQTT to the Garden Spine dashboard:
-   - `bench_occupant_count` — people currently on the bench
-   - `bench_avg_sit_time` — their average sitting time in seconds
+   - `bench_occupant_count` : people currently on the bench
+   - `bench_avg_sit_time` : their average sitting time in seconds
 
 ---
 
 ## Two versions
 
-### Version 1 — Simple ([Bench-WatcherV1/simpleVersion1](Bench-WatcherV1/simpleVersion1/simpleVersion1.ino))
+### Version 1: Simple ([Bench-WatcherV1/simpleVersion1](Bench-WatcherV1/simpleVersion1/simpleVersion1.ino))
 
 The first prototype, focused on the mechanical bird. The two wing servos move as a mirrored pair: a slow flap most of the time and a fast "alarm" flap for 5 seconds every 10 seconds. It has no sensing or network code, which kept it simple to build and test the moving parts.
 
-### Version 2 — Advanced ([Bench-WatcherV2/advancedVersion](Bench-WatcherV2/advancedVersion/advancedVersion.ino))
+### Version 2: Advanced ([Bench-WatcherV2/advancedVersion](Bench-WatcherV2/advancedVersion/advancedVersion.ino))
 
 The full system described above: moving robot, ultrasonic scanning, per-person tracking, sit-time statistics and dashboard reporting.
 
