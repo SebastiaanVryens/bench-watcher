@@ -20,8 +20,8 @@ Built during the Garden Spine summer programme at the **University of Oulu** (IT
 
 ## How it works
 
-1. **Scan.** Two stepper motors drive the robot back and forth along a track beside the bench. An ultrasonic sensor points at the seats and takes a distance reading every 50 ms.
-2. **Locate.** The robot keeps track of where it is on the track by combining its known speed with elapsed time (dead reckoning). Every reading is therefore tied to a position on the bench.
+1. **Scan.** The robot drives back and forth along the bench on wheels turned by two stepper motors. An ultrasonic sensor points at the seats and takes a distance reading every 50 ms.
+2. **Locate.** The robot works out where it is along the bench from its known speed and how long it has been driving (dead reckoning). Every reading is therefore tied to a position on the bench.
 3. **Detect.** When the sensor sees something closer than the bench's back (under 200 cm), the robot marks the start of an object. When the reading goes back to normal, it marks the end. The distance between the two is the object's **width**.
 4. **Classify.** The width tells the robot what it found:
    - under 25 cm → small object (for example a bag)
@@ -36,42 +36,42 @@ Built during the Garden Spine summer programme at the **University of Oulu** (IT
 
 ## State machines
 
-The robot's behaviour is controlled by two state machines running at the same time.
+The robot's behaviour is controlled by two state machines running at the same time: one decides *what* the robot is doing, the other drives it back and forth.
 
 ### Robot behaviour
 
 Decides whether the robot is scanning or reacting to a new person.
 
 ```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Running
-    Running --> Stopped : new person detected
-    Stopped --> Cooldown : after 5 s
-    Cooldown --> Running : after 5 s
-
-    Running : Running<br/>motors drive, wings flap slowly,<br/>sensor scans the bench
-    Stopped : Stopped<br/>motors pause,<br/>wings flap fast
-    Cooldown : Cooldown<br/>motors drive again,<br/>new-person alerts ignored
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    on([Power on]) --> R
+    R["<b>Running</b><br/>motors drive<br/>wings flap slowly<br/>sensor scans the bench"]
+    S["<b>Stopped</b><br/>motors pause<br/>wings flap fast"]
+    C["<b>Cooldown</b><br/>motors drive again<br/>new-person alerts ignored"]
+    R -- new person detected --> S
+    S -- after 5 s --> C
+    C -- after 5 s --> R
 ```
 
 The cooldown stops the robot from reacting to the same person again right after it starts moving.
 
-### Motion along the track
+### Driving back and forth
 
 Moves the robot back and forth along the bench whenever the robot behaviour is *Running* or *Cooldown*.
 
 ```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Forward
-    Forward --> PauseAtEnd : end of track
-    PauseAtEnd --> Backward : after 3 s
-    Backward --> PauseAtStart : start of track
-    PauseAtStart --> Forward : after 3 s
-
-    PauseAtEnd : Pause
-    PauseAtStart : Pause
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    on([Power on]) --> F
+    F["<b>Forward</b><br/>wheels drive forward<br/>along the bench"]
+    P1["<b>Pause</b><br/>motors stop"]
+    B["<b>Backward</b><br/>wheels drive back<br/>the other way"]
+    P2["<b>Pause</b><br/>motors stop"]
+    F -- after 200 s --> P1
+    P1 -- after 3 s --> B
+    B -- after 200 s --> P2
+    P2 -- after 3 s --> F
 ```
 
 ### Tracking one occupant
@@ -79,20 +79,20 @@ stateDiagram-v2
 What happens to each person or object from the moment the sensor first sees them.
 
 ```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Scanning : sensor reads under 200 cm
-    Scanning --> Discarded : narrower than 15 cm
-    Scanning --> Tracked : 15 cm or wider
-    Tracked --> Tracked : seen again on a later pass
-    Tracked --> Clearing : spot looks empty
-    Clearing --> Tracked : seen again
-    Clearing --> Left : empty for 5 s
-    Discarded --> [*]
-    Left --> [*]
-
-    Tracked : Tracked<br/>position, width and<br/>sit time recorded
-    Left : Left<br/>sit time logged
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    in([Sensor reads<br/>under 200 cm]) --> Sc
+    Sc["<b>Scanning</b><br/>measuring the<br/>object's width"]
+    D["<b>Discarded</b><br/>treated as noise"]
+    T["<b>Tracked</b><br/>position, width and<br/>sit time recorded"]
+    Cl["<b>Clearing</b><br/>spot looks empty,<br/>waiting to be sure"]
+    L["<b>Left</b><br/>sit time logged"]
+    Sc -- narrower than 15 cm --> D
+    Sc -- 15 cm or wider --> T
+    T -- seen again on a later pass --> T
+    T -- spot looks empty --> Cl
+    Cl -- seen again --> T
+    Cl -- empty for 5 s --> L
 ```
 
 ### Version 1
@@ -100,14 +100,13 @@ stateDiagram-v2
 The simple version has one state machine that only moves the bird's wings.
 
 ```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> Sweeping
-    Sweeping --> Alarm : after 5 s
-    Alarm --> Sweeping : after 5 s
-
-    Sweeping : Sweeping<br/>slow wing flap
-    Alarm : Alarm<br/>fast wing flap
+%%{init: {"flowchart": {"wrappingWidth": 400}}}%%
+flowchart LR
+    on([Power on]) --> Sw
+    Sw["<b>Sweeping</b><br/>slow wing flap"]
+    A["<b>Alarm</b><br/>fast wing flap"]
+    Sw -- after 5 s --> A
+    A -- after 5 s --> Sw
 ```
 
 ---
@@ -163,7 +162,7 @@ The full system described above: moving robot, ultrasonic scanning, per-person t
 
 ## Limitations and next steps
 
-- Position is estimated from speed and time, so small errors add up over long runs. Wheel encoders or end-stop switches would fix this.
+- Position is estimated from speed and time, so small errors add up over long runs. Counting motor steps or adding wheel encoders would make it more accurate.
 - Width-based classification cannot tell a large bag from a small person. A second sensor at a different height could help.
 - Someone standing in front of the bench is currently counted like someone sitting. A minimum-distance filter is planned.
 
