@@ -34,6 +34,84 @@ Built during the Garden Spine summer programme at the **University of Oulu** (IT
 
 ---
 
+## State machines
+
+The robot's behaviour is controlled by two state machines running at the same time.
+
+### Robot behaviour
+
+Decides whether the robot is scanning or reacting to a new person.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Running
+    Running --> Stopped : new person detected
+    Stopped --> Cooldown : after 5 s
+    Cooldown --> Running : after 5 s
+
+    Running : Running<br/>motors drive, wings flap slowly,<br/>sensor scans the bench
+    Stopped : Stopped<br/>motors pause,<br/>wings flap fast
+    Cooldown : Cooldown<br/>motors drive again,<br/>new-person alerts ignored
+```
+
+The cooldown stops the robot from reacting to the same person again right after it starts moving.
+
+### Motion along the track
+
+Moves the robot back and forth along the bench whenever the robot behaviour is *Running* or *Cooldown*.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Forward
+    Forward --> PauseAtEnd : end of track
+    PauseAtEnd --> Backward : after 3 s
+    Backward --> PauseAtStart : start of track
+    PauseAtStart --> Forward : after 3 s
+
+    PauseAtEnd : Pause
+    PauseAtStart : Pause
+```
+
+### Tracking one occupant
+
+What happens to each person or object from the moment the sensor first sees them.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Scanning : sensor reads under 200 cm
+    Scanning --> Discarded : narrower than 15 cm
+    Scanning --> Tracked : 15 cm or wider
+    Tracked --> Tracked : seen again on a later pass
+    Tracked --> Clearing : spot looks empty
+    Clearing --> Tracked : seen again
+    Clearing --> Left : empty for 5 s
+    Discarded --> [*]
+    Left --> [*]
+
+    Tracked : Tracked<br/>position, width and<br/>sit time recorded
+    Left : Left<br/>sit time logged
+```
+
+### Version 1
+
+The simple version has one state machine that only moves the bird's wings.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Sweeping
+    Sweeping --> Alarm : after 5 s
+    Alarm --> Sweeping : after 5 s
+
+    Sweeping : Sweeping<br/>slow wing flap
+    Alarm : Alarm<br/>fast wing flap
+```
+
+---
+
 ## Two versions
 
 ### Version 1: Simple ([Bench-WatcherV1/simpleVersion1](Bench-WatcherV1/simpleVersion1/simpleVersion1.ino))
